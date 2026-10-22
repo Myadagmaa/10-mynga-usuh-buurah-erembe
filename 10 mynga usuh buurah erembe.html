@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>10,000 хүртэлх тоог эрэмбэлэх - Интерактив хичээл</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Comfortaa:wght@500;700&family=Nunito:wght@600;800;900&display=swap');
+        
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: #f4f6ff;
+        }
+        
+        .heading-font {
+            font-family: 'Comfortaa', cursive;
+        }
+
+        .card-number {
+            transition: all 0.25s ease;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .card-number:hover {
+            transform: translateY(-6px) scale(1.03);
+            box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-number:active {
+            transform: translateY(-2px) scale(0.98);
+        }
+
+        .slot-target {
+            border: 3px dashed #cbd5e1;
+            transition: all 0.2s ease;
+        }
+
+        .slot-target.filled {
+            border: 3px solid #6366f1;
+            background-color: #e0e7ff;
+        }
+
+        /* Pulse animation for hint */
+        @keyframes highlight {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.08); }
+        }
+        .highlight-animation {
+            animation: highlight 0.6s infinite ease-in-out;
+        }
+    </style>
+</head>
+<body class="min-h-screen text-slate-800 flex flex-col">
+
+    <!-- Header Navigation -->
+    <header class="bg-indigo-600 text-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center space-x-3">
+                <div class="bg-white/20 p-2 rounded-xl text-2xl">🔢</div>
+                <div>
+                    <h1 class="heading-font text-xl md:text-2xl font-bold tracking-wide">Математик 3-р анги</h1>
+                    <p class="text-xs text-indigo-200">10,000 хүртэлх тоог өсөх ба буурах эрэмбээр эрэмбэлэх</p>
+                </div>
+            </div>
+            
+            <nav class="flex space-x-1 md:space-x-2 bg-indigo-800/40 p-1.5 rounded-2xl text-xs md:text-sm font-bold">
+                <button onclick="switchTab('lesson')" id="tab-lesson" class="px-3 py-2 rounded-xl transition bg-white text-indigo-700 shadow">
+                    📋 Хичээлийн төлөвлөгөө
+                </button>
+                <button onclick="switchTab('ascending')" id="tab-ascending" class="px-3 py-2 rounded-xl transition text-white hover:bg-white/10">
+                    📈 Өсөх эрэмбэ
+                </button>
+                <button onclick="switchTab('descending')" id="tab-descending" class="px-3 py-2 rounded-xl transition text-white hover:bg-white/10">
+                    📉 Буурах эрэмбэ
+                </button>
+                <button onclick="switchTab('challenge')" id="tab-challenge" class="px-3 py-2 rounded-xl transition text-white hover:bg-white/10">
+                    🏆 Мастер сорилт
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-6xl mx-auto px-4 py-6 flex-grow w-full">
+
+        <!-- TAB 1: LESSON PLAN FOR TEACHER -->
+        <section id="sec-lesson" class="space-y-6">
+            <div class="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-slate-100">
+                <div class="flex items-center space-x-3 mb-6">
+                    <span class="bg-amber-100 text-amber-700 text-xl p-3 rounded-2xl font-bold">🎯</span>
+                    <div>
+                        <h2 class="heading-font text-2xl font-bold text-slate-800">Хичээлийн зорилго ба суралцахуйн үр дүн</h2>
+                        <p class="text-slate-500 text-sm">3-р анги | Нэгж хичээл: Олон оронтой тоо</p>
+                    </div>
+                </div>
+
+                <div class="grid md:grid-grid-cols-2 gap-4 mb-6">
+                    <div class="bg-indigo-50/50 p-4 rounded-2xl border border-indigo-100">
+                        <h3 class="font-bold text-indigo-900 mb-2 flex items-center">
+                            <i class="fa-solid fa-bullseye text-indigo-600 mr-2"></i> Суралцахуйн зорилго
+                        </h3>
+                        <p class="text-slate-700 text-sm leading-relaxed">
+                            Сурагчид 10,000 хүртэлх тоонуудын оронгийн утгыг (Мянгат, Зуут, Аравт, Нэгж) харьцуулан, өсөх (багаас их рүү) болон буурах (ихээс бага руу) эрэмбээр зөв байрлуулах чадвар эзэмшинэ.
+                        </p>
+                    </div>
+                    <div class="bg-emerald-50/50 p-4 rounded-2xl border border-emerald-100">
+                        <h3 class="font-bold text-emerald-900 mb-2 flex items-center">
+                            <i class="fa-solid fa-circle-check text-emerald-600 mr-2"></i> Хүрэх үр дүн
+                        </h3>
+                        <ul class="text-slate-700 text-sm space-y-1 list-disc list-inside">
+                            <li>Олон оронтой тооны харгалзах орнуудыг зөв жишиж сурна.</li>
+                            <li>Өгөгдсөн 4-5 тоог өсөх болон буурах эрэмбээр алдаагүй жагсаана.</li>
+                            <li>Өөрийн гаргасан шийдлийг оронгийн утгаар тайлбарлана.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Step by Step Guide -->
+                <h3 class="heading-font text-xl font-bold text-slate-800 mb-4 flex items-center">
+                    <i class="fa-solid fa-list-check text-indigo-600 mr-2"></i> Хичээлийн интерактив явц (40 минут)
+                </h3>
+
+                <div class="space-y-4">
+                    <div class="flex items-start space-x-4 p-4 rounded-2xl bg-slate-50 border border-slate-200">
+                        <div class="bg-indigo-600 text-white font-bold px-3 py-1.5 rounded-xl text-sm min-w-[75px] text-center">
+                            5 мин
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-slate-800">1. Сэргээн санаж сэргээх (Оронгийн утгын тоглоом)</h4>
+                            <p class="text-slate-600 text-sm mt-1">
+                                Самбарт $2450$ ба $2390$ гэсэн хоёр тоо бичнэ. Сурагчдаас аль нь их вэ? Яагаад? гэж асууна. 
+                                <em>Түлхүүр ойлголт:</em> Мянгатын орон тэнцүү бол ЗУУТЫН оронг, зуут тэнцүү бол АРАВТЫН оронг жишинэ.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start space-x-4 p-4 rounded-2xl bg-slate-50 border border-slate-200">
+                        <div class="bg-indigo-600 text-white font-bold px-3 py-1.5 rounded-xl text-sm min-w-[75px] text-center">
+                            10 мин
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-slate-800">2. Багшийн зааварчилгаа ба Дүрэм танилцуулах</h4>
+                            <div class="grid sm:grid-cols-2 gap-3 mt-2">
+                                <div class="bg-white p-3 rounded-xl border border-slate-200 text-xs">
+                                    <span class="font-bold text-indigo-600 block mb-1">📈 ӨСӨХ ЭРЭМБЭ:</span>
+                                    Хамгийн <strong>БАГА</strong> тооноос эхлэн <strong>ИХ</strong> рүү жагсаана.<br>
+                                    <span class="text-slate-500">Жишээ: 1200 → 2350 → 4100 → 7800</span>
+                                </div>
+                                <div class="bg-white p-3 rounded-xl border border-slate-200 text-xs">
+                                    <span class="font-bold text-rose-600 block mb-1">📉 БУУРАХ ЭРЭМБЭ:</span>
+                                    Хамгийн <strong>ИХ</strong> тооноос эхлэн <strong>БАГА</strong> рүү жагсаана.<br>
+                                    <span class="text-slate-500">Жишээ: 9500 → 6400 → 3200 → 1100</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start space-x-4 p-4 rounded-2xl bg-slate-50 border border-slate-200">
+                        <div class="bg-indigo-600 text-white font-bold px-3 py-1.5 rounded-xl text-sm min-w-[75px] text-center">
+                            20 мин
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-slate-800">3. Интерактив тоглоом ба Дадлага ажил</h4>
+                            <p class="text-slate-600 text-sm mt-1 mb-2">
+                                Сурагчдыг багт хуваан дээрх цэсний <strong>"Өсөх эрэмбэ"</strong>, <strong>"Буурах эрэмбэ"</strong> болон <strong>"Мастер сорилт"</strong> тоглоомуудыг ухаалаг самбар эсвэл таблет дээр ажиллуулна.
+                            </p>
+                            <span class="inline-block bg-amber-100 text-amber-800 text-xs px-3 py-1 rounded-lg font-semibold">
+                                💡 Зөвлөмж: Сурагчид тоонуудыг дараалалд оруулахдаа "Мянгат"-аас нь эхлэн чангаар уншиж шалгана.
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start space-x-4 p-4 rounded-2xl bg-slate-50 border border-slate-200">
+                        <div class="bg-indigo-600 text-white font-bold px-3 py-1.5 rounded-xl text-sm min-w-[75px] text-center">
+                            5 мин
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-slate-800">4. Баталгаажуулалт ба Дүгнэлт</h4>
+                            <p class="text-slate-600 text-sm mt-1">
+                                Сурагч бүр өөрийн амжилтыг дүгнэж, Мастер сорилтын оноогоо багшдаа шалгуулна.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 2: ASCENDING GAME -->
+        <section id="sec-ascending" class="hidden space-y-6">
+            <div class="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-slate-100 text-center">
+                <div class="inline-flex items-center space-x-2 bg-indigo-50 text-indigo-700 px-4 py-2 rounded-2xl font-bold text-sm mb-4">
+                    <span>📈 ӨСӨХ ЭРЭМБЭ</span>
+                    <span>•</span>
+                    <span>БАГААС НЬ ИХ РҮҮ</span>
+                </div>
+                <h2 class="heading-font text-2xl md:text-3xl font-extrabold text-slate-800 mb-2">
+                    Тоонуудыг өсөх эрэмбээр байрлуулаарай!
+                </h2>
+                <p class="text-slate-500 text-sm mb-6 max-w-lg mx-auto">
+                    Доорх тоонуудыг дараалуулан дарж, <strong>хамгийн багаас нь эхлэн хамгийн их</strong> рүү хоосон нүднүүдэд оруулаарай.
+                </p>
+
+                <!-- Slots Area -->
+                <div id="asc-slots" class="flex flex-wrap justify-center gap-3 md:gap-4 my-8 min-h-[90px]">
+                    <!-- Slots generated by JS -->
+                </div>
+
+                <!-- Available Cards Area -->
+                <div class="bg-slate-50 p-6 rounded-3xl border border-slate-200 mb-6">
+                    <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Сонгох тоонууд (Дээр нь дарна уу)</p>
+                    <div id="asc-cards" class="flex flex-wrap justify-center gap-3 md:gap-4 min-h-[80px]">
+                        <!-- Cards generated by JS -->
+                    </div>
+                </div>
+
+                <!-- Controls & Feedback -->
+                <div class="flex flex-wrap items-center justify-between gap-4 pt-2">
+                    <button onclick="showHint('asc')" class="text-amber-600 hover:bg-amber-50 px-4 py-2 rounded-xl text-sm font-bold flex items-center border border-amber-200 transition">
+                        💡 Зөвлөмж харах
+                    </button>
+
+                    <div class="space-x-2">
+                        <button onclick="resetGame('asc')" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold px-5 py-2.5 rounded-xl transition text-sm">
+                            🔄 Дахин эхлэх
+                        </button>
+                        <button onclick="checkAnswer('asc')" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-7 py-2.5 rounded-xl shadow-lg shadow-indigo-200 transition text-sm">
+                            ✅ Шалгах
+                        </button>
+                    </div>
+                </div>
+
+                <div id="asc-feedback" class="mt-6 hidden p-4 rounded-2xl text-center font-bold text-lg"></div>
+                <div id="asc-hint-box" class="mt-4 hidden p-4 bg-amber-50 border border-amber-200 rounded-2xl text-slate-700 text-sm text-left"></div>
+            </div>
+        </section>
+
+        <!-- TAB 3: DESCENDING GAME -->
+        <section id="sec-descending" class="hidden space-y-6">
+            <div class="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-slate-100 text-center">
+                <div class="inline-flex items-center space-x-2 bg-rose-50 text-rose-700 px-4 py-2 rounded-2xl font-bold text-sm mb-4">
+                    <span>📉 БУУРАХ ЭРЭМБЭ</span>
+                    <span>•</span>
+                    <span>ИХЭЭС НЬ БАГА РҮҮ</span>
+                </div>
+                <h2 class="heading-font text-2xl md:text-3xl font-extrabold text-slate-800 mb-2">
+                    Тоонуудыг буурах эрэмбээр байрлуулаарай!
+                </h2>
+                <p class="text-slate-500 text-sm mb-6 max-w-lg mx-auto">
+                    Доорх тоонуудыг дараалуулан дарж, <strong>хамгийн ихээс нь эхлэн хамгийн бага</strong> рүү хоосон нүднүүдэд оруулаарай.
+                </p>
+
+                <!-- Slots Area -->
+                <div id="desc-slots" class="flex flex-wrap justify-center gap-3 md:gap-4 my-8 min-h-[90px]">
+                    <!-- Slots generated by JS -->
+                </div>
+
+                <!-- Available Cards Area -->
+                <div class="bg-slate-50 p-6 rounded-3xl border border-slate-200 mb-6">
+                    <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Сонгох тоонууд (Дээр нь дарна уу)</p>
+                    <div id="desc-cards" class="flex flex-wrap justify-center gap-3 md:gap-4 min-h-[80px]">
+                        <!-- Cards generated by JS -->
+                    </div>
+                </div>
+
+                <!-- Controls & Feedback -->
+                <div class="flex flex-wrap items-center justify-between gap-4 pt-2">
+                    <button onclick="showHint('desc')" class="text-amber-600 hover:bg-amber-50 px-4 py-2 rounded-xl text-sm font-bold flex items-center border border-amber-200 transition">
+                        💡 Зөвлөмж харах
+                    </button>
+
+                    <div class="space-x-2">
+                        <button onclick="resetGame('desc')" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold px-5 py-2.5 rounded-xl transition text-sm">
+                            🔄 Дахин эхлэх
+                        </button>
+                        <button onclick="checkAnswer('desc')" class="bg-rose-600 hover:bg-rose-700 text-white font-bold px-7 py-2.5 rounded-xl shadow-lg shadow-rose-200 transition text-sm">
+                            ✅ Шалгах
+                        </button>
+                    </div>
+                </div>
+
+                <div id="desc-feedback" class="mt-6 hidden p-4 rounded-2xl text-center font-bold text-lg"></div>
+                <div id="desc-hint-box" class="mt-4 hidden p-4 bg-amber-50 border border-amber-200 rounded-2xl text-slate-700 text-sm text-left"></div>
+            </div>
+        </section>
+
+        <!-- TAB 4: MASTER CHALLENGE -->
+        <section id="sec-challenge" class="hidden space-y-6">
+            <div class="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-slate-100">
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <span class="bg-purple-100 text-purple-700 px-3 py-1 rounded-xl text-xs font-bold">🏆 МАТЕМАТИКИЙН МАСТЕР</span>
+                        <h2 class="heading-font text-2xl font-bold text-slate-800 mt-1">Түргэн сорилт</h2>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-xs text-slate-400 font-bold">ОНОО</span>
+                        <div id="challenge-score" class="text-2xl font-black text-indigo-600">0 / 5</div>
+                    </div>
+                </div>
+
+                <div id="challenge-body">
+                    <!-- Dynamic Challenge Cards -->
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-100 border-t border-slate-200 py-4 text-center text-xs text-slate-500">
+        Математик 3-р анги | 10,000 хүртэлх тооны эрэмбэ интерактив сургалт
+    </footer>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // State variables
+        let currentTab = 'lesson';
+        
+        let ascData = {
+            numbers: [],
+            selected: [],
+            targetOrder: []
+        };
+
+        let descData = {
+            numbers: [],
+            selected: [],
+            targetOrder: []
+        };
+
+        let challengeIndex = 0;
+        let challengeScore = 0;
+        let challengeQuestions = [];
+
+        // Utility: Generate random 4-digit numbers
+        function generateRandomNumbers(count = 5) {
+            let nums = new Set();
+            while(nums.size < count) {
+                // Generate numbers between 1000 and 9999
+                let val = Math.floor(Math.random() * 8999) + 1000;
+                // Add variety by sometimes keeping thousands equal
+                nums.add(val);
+            }
+            return Array.from(nums);
+        }
+
+        // Tab Switching Logic
+        function switchTab(tab) {
+            currentTab = tab;
+            ['lesson', 'ascending', 'descending', 'challenge'].forEach(t => {
+                const sec = document.getElementById(`sec-${t}`);
+                const btn = document.getElementById(`tab-${t}`);
+                if (t === tab) {
+                    sec.classList.remove('hidden');
+                    btn.classList.add('bg-white', 'text-indigo-700', 'shadow');
+                    btn.classList.remove('text-white', 'hover:bg-white/10');
+                } else {
+                    sec.classList.add('hidden');
+                    btn.classList.remove('bg-white', 'text-indigo-700', 'shadow');
+                    btn.classList.add('text-white', 'hover:bg-white/10');
+                }
+            });
+
+            if (tab === 'ascending' && ascData.numbers.length === 0) {
+                initGame('asc');
+            } else if (tab === 'descending' && descData.numbers.length === 0) {
+                initGame('desc');
+            } else if (tab === 'challenge' && challengeQuestions.length === 0) {
+                initChallenge();
+            }
+        }
+
+        // Initialize Ascending/Descending Games
+        function initGame(type) {
+            const data = type === 'asc' ? ascData : descData;
+            const rawNumbers = generateRandomNumbers(5);
+            
+            data.numbers = [...rawNumbers];
+            data.selected = [];
+            
+            if (type === 'asc') {
+                data.targetOrder = [...rawNumbers].sort((a, b) => a - b);
+            } else {
+                data.targetOrder = [...rawNumbers].sort((a, b) => b - a);
+            }
+
+            // Shuffle display numbers
+            data.displayNumbers = [...rawNumbers].sort(() => Math.random() - 0.5);
+
+            document.getElementById(`${type}-feedback`).classList.add('hidden');
+            document.getElementById(`${type}-hint-box`).classList.add('hidden');
+            
+            renderGame(type);
+        }
+
+        function renderGame(type) {
+            const data = type === 'asc' ? ascData : descData;
+            const slotsContainer = document.getElementById(`${type}-slots`);
+            const cardsContainer = document.getElementById(`${type}-cards`);
+
+            // Render Slots
+            slotsContainer.innerHTML = '';
+            for (let i = 0; i < 5; i++) {
+                const val = data.selected[i];
+                const slotDiv = document.createElement('div');
+                slotDiv.className = `slot-target w-28 h-20 md:w-32 md:h-24 rounded-2xl flex flex-col items-center justify-center font-extrabold text-lg md:text-xl relative ${val ? 'filled text-indigo-900 shadow-sm' : 'text-slate-300'}`;
+                
+                if (val) {
+                    slotDiv.innerHTML = `
+                        <span>${val.toLocaleString()}</span>
+                        <span class="text-[10px] text-indigo-400 font-normal mt-1">${i+1}-р тоо</span>
+                    `;
+                    slotDiv.onclick = () => removeSelected(type, i);
+                } else {
+                    slotDiv.innerHTML = `
+                        <span class="text-sm font-bold text-slate-300">${i+1}</span>
+                    `;
+                }
+                slotsContainer.appendChild(slotDiv);
+            }
+
+            // Render Remaining Cards
+            cardsContainer.innerHTML = '';
+            data.displayNumbers.forEach((num) => {
+                const isUsed = data.selected.includes(num);
+                if (!isUsed) {
+                    const cardBtn = document.createElement('button');
+                    cardBtn.className = `card-number bg-white border-2 border-indigo-200 hover:border-indigo-500 text-indigo-950 font-black text-lg md:text-xl px-5 py-4 rounded-2xl shadow-sm`;
+                    cardBtn.innerText = num.toLocaleString();
+                    cardBtn.onclick = () => selectNumber(type, num);
+                    cardsContainer.appendChild(cardBtn);
+                }
+            });
+        }
+
+        function selectNumber(type, num) {
+            const data = type === 'asc' ? ascData : descData;
+            if (data.selected.length < 5) {
+                data.selected.push(num);
+                renderGame(type);
+            }
+        }
+
+        function removeSelected(type, index) {
+            const data = type === 'asc' ? ascData : descData;
+            data.selected.splice(index, 1);
+            renderGame(type);
+        }
+
+        function resetGame(type) {
+            initGame(type);
+        }
+
+        function checkAnswer(type) {
+            const data = type === 'asc' ? ascData : descData;
+            const feedback = document.getElementById(`${type}-feedback`);
+
+            if (data.selected.length < 5) {
+                feedback.className = 'mt-6 p-4 rounded-2xl text-center font-bold text-sm bg-amber-100 text-amber-800';
+                feedback.innerText = '⚠️ Бүх 5 тоог дараалуулан нүдэнд оруулна уу!';
+                feedback.classList.remove('hidden');
+                return;
+            }
+
+            let isCorrect = true;
+            for (let i = 0; i < 5; i++) {
+                if (data.selected[i] !== data.targetOrder[i]) {
+                    isCorrect = false;
+                    break;
+                }
+            }
+
+            if (isCorrect) {
+                feedback.className = 'mt-6 p-4 rounded-2xl text-center font-bold text-lg bg-emerald-100 text-emerald-800 border border-emerald-300';
+                feedback.innerText = '🎉 Баяр хүргэе! Маш сайн. Тоонуудыг зөв эрэмбэллээ!';
+                confetti({
+                    particleCount: 80,
+                    spread: 60,
+                    origin: { y: 0.7 }
+                });
+            } else {
+                feedback.className = 'mt-6 p-4 rounded-2xl text-center font-bold text-lg bg-rose-100 text-rose-800 border border-rose-300';
+                feedback.innerText = '❌ Алдаа байна! Орны утгуудыг дахин нэг сайн харьцуулаад үзээрэй.';
+            }
+            feedback.classList.remove('hidden');
+        }
+
+        function showHint(type) {
+            const data = type === 'asc' ? ascData : descData;
+            const hintBox = document.getElementById(`${type}-hint-box`);
+            
+            let html = `<p class="font-bold mb-2">💡 Оронгийн утгаар салгаж харах:</p><div class="space-y-1 text-xs">`;
+            data.numbers.forEach(num => {
+                const myang = Math.floor(num / 1000);
+                const zuut = Math.floor((num % 1000) / 100);
+                const arav = Math.floor((num % 100) / 10);
+                const negj = num % 10;
+                html += `<div><strong>${num}</strong> = <span class="text-indigo-600 font-bold">${myang}</span> мянгат, <span class="text-emerald-600 font-bold">${zuut}</span> зуут, <span class="text-amber-600 font-bold">${arav}</span> аравт, <span class="text-rose-600 font-bold">${negj}</span> нэгж</div>`;
+            });
+            html += `</div>`;
+            
+            hintBox.innerHTML = html;
+            hintBox.classList.remove('hidden');
+        }
+
+        // --- Challenge Logic ---
+        function initChallenge() {
+            challengeIndex = 0;
+            challengeScore = 0;
+            document.getElementById('challenge-score').innerText = `0 / 5`;
+            
+            challengeQuestions = [
+                generateChallengeQ('asc'),
+                generateChallengeQ('desc'),
+                generateChallengeQ('asc'),
+                generateChallengeQ('desc'),
+                generateChallengeQ('asc')
+            ];
+
+            renderChallenge();
+        }
+
+        function generateChallengeQ(mode) {
+            const nums = generateRandomNumbers(4);
+            const sorted = [...nums].sort((a,b) => mode === 'asc' ? a - b : b - a);
+            return {
+                mode: mode,
+                numbers: nums,
+                correctOrder: sorted
+            };
+        }
+
+        function renderChallenge() {
+            const container = document.getElementById('challenge-body');
+            
+            if (challengeIndex >= challengeQuestions.length) {
+                // Challenge finished
+                container.innerHTML = `
+                    <div class="text-center py-10 space-y-4">
+                        <div class="text-6xl">🏆</div>
+                        <h3 class="heading-font text-2xl font-bold text-slate-800">Сорилт амжилттай дууслаа!</h3>
+                        <p class="text-lg text-slate-600">Таны авсан оноо: <strong class="text-indigo-600 text-2xl">${challengeScore} / ${challengeQuestions.length}</strong></p>
+                        <button onclick="initChallenge()" class="bg-indigo-600 text-white font-bold px-6 py-3 rounded-2xl shadow-lg shadow-indigo-200">
+                            🔄 Дахин сорих
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            const q = challengeQuestions[challengeIndex];
+            const modeText = q.mode === 'asc' ? 'ӨСӨХ (Багаас нь их рүү)' : 'БҮҮРАХ (Ихээс нь бага руу)';
+            const modeColor = q.mode === 'asc' ? 'bg-indigo-100 text-indigo-800' : 'bg-rose-100 text-rose-800';
+
+            // Generate choices (1 correct, 3 distractors)
+            let choices = [q.correctOrder];
+            while(choices.length < 3) {
+                let shuffled = [...q.numbers].sort(() => Math.random() - 0.5);
+                if (!choices.some(c => JSON.stringify(c) === JSON.stringify(shuffled))) {
+                    choices.push(shuffled);
+                }
+            }
+            choices.sort(() => Math.random() - 0.5);
+
+            let choicesHTML = choices.map((choice, idx) => `
+                <button onclick="submitChallengeAnswer(${idx})" id="choice-btn-${idx}" class="w-full text-left p-4 rounded-2xl border-2 border-slate-200 hover:border-indigo-500 hover:bg-indigo-50/40 transition font-bold text-lg text-slate-800 flex justify-between items-center">
+                    <span>${choice.join(' &nbsp;➔&nbsp; ')}</span>
+                    <i class="fa-regular fa-circle text-slate-300"></i>
+                </button>
+            `).join('');
+
+            container.innerHTML = `
+                <div class="space-y-6">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold text-slate-400">Асуулт ${challengeIndex + 1} / 5</span>
+                        <span class="text-xs font-extrabold ${modeColor} px-3 py-1 rounded-full">${modeText}</span>
+                    </div>
+
+                    <p class="text-base md:text-lg font-bold text-slate-700">
+                        Дараах тоонуудыг <strong>${q.mode === 'asc' ? 'ӨСӨХ' : 'БҮҮРАХ'}</strong> эрэмбээр зөв байрлуулсан хувилбарыг сонгоно уу:
+                    </p>
+
+                    <div class="flex flex-wrap gap-2 justify-center bg-slate-50 p-4 rounded-2xl border border-slate-200">
+                        ${q.numbers.map(n => `<span class="bg-white px-4 py-2 rounded-xl border border-slate-300 font-black text-indigo-900">${n}</span>`).join('')}
+                    </div>
+
+                    <div class="space-y-3 pt-2">
+                        ${choicesHTML}
+                    </div>
+
+                    <div id="challenge-feedback" class="hidden p-4 rounded-2xl font-bold text-center"></div>
+                </div>
+            `;
+
+            // Save correct choice index for answer checking
+            window.currentCorrectChoice = choices.findIndex(c => JSON.stringify(c) === JSON.stringify(q.correctOrder));
+        }
+
+        function submitChallengeAnswer(selectedIdx) {
+            const isCorrect = selectedIdx === window.currentCorrectChoice;
+            const feedback = document.getElementById('challenge-feedback');
+
+            if (isCorrect) {
+                challengeScore++;
+                document.getElementById('challenge-score').innerText = `${challengeScore} / 5`;
+                feedback.className = 'p-4 rounded-2xl font-bold text-center bg-emerald-100 text-emerald-800 border border-emerald-300';
+                feedback.innerText = '✨ Зөв байна!';
+            } else {
+                feedback.className = 'p-4 rounded-2xl font-bold text-center bg-rose-100 text-rose-800 border border-rose-300';
+                feedback.innerText = '❌ Буруу байна!';
+            }
+
+            feedback.classList.remove('hidden');
+
+            setTimeout(() => {
+                challengeIndex++;
+                renderChallenge();
+            }, 1200);
+        }
+
+        // Initialize default view
+        switchTab('lesson');
+    </script>
+</body>
+</html>
